@@ -1,0 +1,26 @@
+public_name: 'prmt'
+interal_name: 'prmt'
+version: '0.0.0-alpha.0'
+license: 'unlicensed'
+author: 'Felix Meyer-Wolters'
+author_email: 'felix@meyerwolters.de'
+maintainer: 'Felix Meyer-Wolters'
+maintainer_email: 'felix@meyerwolters.de'
+url: 'https://github.com/feluxe/prmt'
+description: 'Prompt user for commandline input.'
+keywords: ['prompt', 'commandline', 'input']
+interpreter: "python3.6"
+pypi:
+  install_requires: []
+  packages: ["prmt"]
+  package_dir: {"prmt": "prmt"}
+  package_data: {}
+  py_modules: []
+  data_files: []
+  classifiers: []
+  platforms: ""
+  entry_points: {
+    "console_scripts": ["prmt = prmt.main:execute"],
+    "gui_scripts": []
+    }
+  tests_require: ['wheel']
