@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from ompy.app.utils import load_yaml
+from buildlib.utils.yaml import load_yaml
 from codecs import open
 
 with open('README.md') as f:
@@ -31,4 +31,4 @@ setup(
     data_files=config['pypi']['data_files'],
     entry_points=config['pypi']['entry_points'],
     tests_require=config['pypi']['tests_require']
-)
+    )

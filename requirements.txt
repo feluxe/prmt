@@ -1,9 +1,6 @@
-mock==2.0.0
-ompy==0.0.0a80
-pbr==3.1.1
-py==1.4.34
-pytest==3.2.0
-python-slugify==1.2.4
+buildlib==0.0.0a6
+cmdinter==0.0.0a3
+headlines==0.0.0a4
+prmt==0.0.0a0
+processy==0.0.0a3
 ruamel.yaml==0.15.23
-six==1.10.0
-Unidecode==0.4.21

@@ -1,21 +1,21 @@
 import sys
 import os
-# from ompy.cli.styling import tags
-# from ompy.app.utils import load_yaml
-# from ompy.cmdlib.build import build_python_wheel
+from headlines import h2, h3
+from buildlib.utils.yaml import load_yaml
+from buildlib.cmds.build import build_python_wheel
 
 CWD = os.getcwd()
-# CFG = load_yaml(CWD + '/CONFIG.yaml', keep_order=True)
+CFG = load_yaml(CWD + '/CONFIG.yaml', keep_order=True)
 
 
 def build_sequence() -> None:
-    # print(tags.h2('Build'))
+    print(h2('Build'))
 
     result = []
 
-    # result.append(build_python_wheel(clean_dir=True))
+    result.append(build_python_wheel(clean_dir=True))
 
-    # print(tags.h3('Build Results'))
+    print(h3('Build Results'))
     for command in result:
         print(command.return_msg)
 
