@@ -35,7 +35,7 @@ def editor_input(prompt):
 def string(
     question: str,
     default: str = None,
-    margin=(0, 0),
+    margin=(0, 1),
     force_val: bool = False,
     editor=False,
     ) -> str:
@@ -67,7 +67,7 @@ def string(
 def confirm(
     question: str,
     default: str = None,
-    margin=(0, 0),
+    margin=(0, 1),
     ) -> bool:
     """
     Ask user question to which she has to answer with y or n and return a bool.
@@ -96,7 +96,7 @@ def select(
     question: str,
     options: Union[dict, list],
     default: Optional[str] = None,
-    margin=(0, 0),
+    margin=(0, 1),
     return_val: Optional[bool] = True,
     sort: Optional[bool] = True,
     ) -> Union[str, int]:
@@ -132,7 +132,7 @@ def path(
     question: str,
     options: Union[list, dict] = None,
     default: Optional[str] = None,
-    margin=(0, 0),
+    margin=(0, 1),
     ) -> str:
     """
     Ask user to choose a path from a list or enter a new one.
@@ -156,7 +156,7 @@ def path(
 def list_(
     question: str,
     default: Optional[Union[list, str]] = None,
-    margin=(0, 0),
+    margin=(0, 1),
     force_val: bool = False,
     ) -> list:
     """
