@@ -1,13 +1,5 @@
 """
-This lib is all about asking the user for CLI input.
-This file contains public functions only. Private stuff does not belong here.
-
-This module is written with this import style in mind:
-
-    from ompy.cli.prompt import utils as prompt
-
-    prompt.confirm()
-
+This lib is all about asking the user for Command Line input.
 """
 
 from typing import Union, Any, Optional
@@ -105,12 +97,12 @@ def select(
     options: Union[dict, list],
     default: Optional[str] = None,
     margin=(0, 0),
-    return_value: Optional[bool] = True,
+    return_val: Optional[bool] = True,
     sort: Optional[bool] = True,
     ) -> Union[str, int]:
     """
     Ask user a question and list options to choose from.
-    @return_value: If False: func returns selected int (the key).
+    @return_val: If False: func returns selected int (the key).
                    If True: func returns the value as a string.
     """
     _print_margin(margin[0])
@@ -133,7 +125,7 @@ def select(
     else:
         _print_margin(margin[1])
 
-    return int(selection) if not return_value else options[int(selection)]
+    return int(selection) if not return_val else options[int(selection)]
 
 
 def path(
@@ -148,7 +140,7 @@ def path(
     """
     option: str = 'Enter PATH manually.'
     options_: Optional[list] = [option] + options if options else None
-    selection: Optional[int] = select(question, options_, default, return_value=False,
+    selection: Optional[int] = select(question, options_, default, return_val=False,
                                       margin=margin, sort=False) if options else None
 
     if not selection and not isinstance(selection, int):
