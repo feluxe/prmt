@@ -11,118 +11,152 @@ This module is written with this import style in mind:
 """
 
 from typing import Union, Any, Optional
+import tempfile
+import os
+from subprocess import call
+
+
+def _print_margin(int_):
+    for i in range(0, int_):
+        print()
+
+
+def editor_input(prompt):
+    editor = os.environ.get('EDITOR') if os.environ.get('EDITOR') else 'vi'
+    init = ""
+
+    print(prompt, end='')
+
+    with tempfile.NamedTemporaryFile(suffix=".tmp", mode='w+') as tmp_file:
+        tmp_file.write(init)
+        tmp_file.flush()
+        call([editor, tmp_file.name])
+
+        tmp_file.seek(0)
+        edited_message = tmp_file.read()
+
+    print(edited_message)
+
+    return edited_message
 
 
 def string(
     question: str,
     default: str = None,
-    force_value: bool = False,
-    one_line: bool = False
+    margin=(0, 0),
+    force_val: bool = False,
+    editor=False,
     ) -> str:
     """
     Ask user question and return input from user.
-    @default: Is displayed before the prompt. (optional)
-    @force_value: If this is set, the prompt will repeat itself if the user enters an empty string.
+    @default: Is displayed before the prompt and used if an empty string was passed.
+    @force_value: Repeat if input is empty.
+    @margin: Add a margin before and after the question.
     """
-    _default: str = '[' + default + '] > ' if default else '> '
-    question_line: str = '# ' + question
-    prompt_line: str = _default if not one_line else question + ' ' + _default
+    _print_margin(margin[0])
 
-    print('\n' + question_line) if not one_line else print('')
+    default_view: str = '[' + default + ']: ' if default else ''
+    prompt: str = question + default_view
 
-    answer: str = input(prompt_line) or default
+    if editor:
+        answer = editor_input(prompt) or default
+    else:
+        answer: str = input(prompt) or default
 
-    if force_value and answer == '' or answer is None:
+    if force_val and not answer:
         print('\nInvalid input.')
-        answer = string(question, default, force_value, one_line)
+        answer = string(question, default, margin, force_val, editor)
+    else:
+        _print_margin(margin[1])
 
-    print('')
     return answer
 
 
 def confirm(
     question: str,
     default: str = None,
-    one_line: bool = False
+    margin=(0, 0),
     ) -> bool:
     """
-    Ask user question to which she has to anwser with y or n and return a bool.
+    Ask user question to which she has to answer with y or n and return a bool.
     @default: Is displayed before the prompt. (optional)
     """
-    default_: str = '[' + default + '] > ' if default else '> '
-    question_line: str = '# ' + question
-    prompt_line: str = default_ if not one_line else question + ' ' + default_
+    _print_margin(margin[0])
 
-    print('\n' + question_line) if not one_line else print('')
+    default_view: str = '[' + default + ']: ' if default else ''
+    prompt: str = question + default_view
 
-    answer = a = input(prompt_line) or default
+    answer: str = input(prompt) or default
 
     if answer and answer.lower() in ['y', 'yes', 'true', '1']:
         return_val: bool = True
     elif answer and answer.lower() in ['n', 'no', 'false', '0']:
         return_val: bool = False
     else:
-        return_val: bool = confirm(question, default, one_line)
+        return_val: bool = confirm(question, default, margin)
 
-    print('')
+    _print_margin(margin[1])
+
     return return_val
-
-
-def _convert_if_dict(item: Union[dict, list]) -> list:
-    return list(item.keys()) if isinstance(item, dict) else item
 
 
 def select(
     question: str,
     options: Union[dict, list],
+    default: Optional[str] = None,
+    margin=(0, 0),
     return_value: Optional[bool] = True,
     sort: Optional[bool] = True,
-    default: Optional[str] = None
     ) -> Union[str, int]:
     """
     Ask user a question and list options to choose from.
     @return_value: If False: func returns selected int (the key).
                    If True: func returns the value as a string.
     """
-    prompt = lambda inp: inp if valid(inp) else (print('\nInvalid input.\n'), prompt(input('> ')))[
-        1]
-    valid = lambda _input: _input and _input.isdigit() and int(_input) in range(len(options))
-    _sort = lambda opt: sorted(opt) if sort else opt
+    _print_margin(margin[0])
 
-    options_: list = _sort(_convert_if_dict(options))
-    _default: str = '[' + default + '] > ' if default else '> '
+    valid = lambda input_: input_ and input_.isdigit() and int(input_) in range(len(options))
 
-    print('\n# ' + question), [print('#    {}) {}'.format(i, o)) for i, o in enumerate(options_)]
+    options: list = list(options.keys()) if isinstance(options, dict) else options
+    options: list = sorted(options) if sort else options
+    default_view: str = '[' + default + ']: ' if default else ''
 
-    selection: str = prompt(input(_default) or default)
+    print(question)
 
-    print('')
+    for i, o in enumerate(options):
+        print('  {}) {}'.format(i, o))
 
-    return int(selection) if not return_value else options_[int(selection)]
+    selection: str = input(default_view) or default
+
+    if not valid(selection):
+        selection: str = select(question, options, default, margin, False, sort)
+    else:
+        _print_margin(margin[1])
+
+    return int(selection) if not return_value else options[int(selection)]
 
 
 def path(
     question: str,
-    options: Union[list, dict] = None
+    options: Union[list, dict] = None,
+    default: Optional[str] = None,
+    margin=(0, 0),
     ) -> str:
     """
     Ask user to choose a path from a list or enter a new one.
     If no option is provided, she will be ask to enter a new path immediately.
-    TODO: Not sure if types are correct here.
-    TODO: Maybe this needs to get refactored.
     """
-    option: str = 'Define a PATH manually.'
+    option: str = 'Enter PATH manually.'
     options_: Optional[list] = [option] + options if options else None
-    selection: Optional[int] = None if not options_ else select(question, options_,
-        return_value=False, sort=False)
+    selection: Optional[int] = select(question, options_, default, return_value=False,
+                                      margin=margin, sort=False) if options else None
 
-    print(question) if not selection and not isinstance(selection, int) else None
+    if not selection and not isinstance(selection, int):
+        print(question)
 
-    q: str = 'Please enter a PATH:'
-    result: str = string(q, force_value=True) if selection in (0, None) else options[
+    q: str = 'Please enter a PATH:\n'
+    result: str = string(q, margin=margin, force_val=True) if selection in (0, None) else options[
         selection]
-
-    print('')
 
     return result
 
@@ -130,14 +164,13 @@ def path(
 def list_(
     question: str,
     default: Optional[Union[list, str]] = None,
-    one_line: Optional[bool] = None
+    margin=(0, 0),
+    force_val: bool = False,
     ) -> list:
     """
     Ask user for a list of strings. Each one must be separated with a comma.
     """
-    info: str = ' (Separate items with a comma.)'
-    _question: str = question + info
-    _default: str = ', '.join(list(default)) if default else None
-    answer: Optional[str] = string(_question, _default, one_line=one_line)
+    default_: str = ', '.join(list(default)) if default else None
+    answer: Optional[str] = string(question, default_, margin, force_val)
 
     return [item.strip() for item in answer.split(',')] if answer else []
