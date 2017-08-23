@@ -47,7 +47,7 @@ def string(
     """
     _print_margin(margin[0])
 
-    default_view: str = '[' + default + ']: ' if default else ''
+    default_view: str = '[' + str(default) + ']: ' if default else ''
     prompt: str = question + default_view
 
     if editor:
@@ -75,7 +75,7 @@ def confirm(
     """
     _print_margin(margin[0])
 
-    default_view: str = '[' + default + ']: ' if default else ''
+    default_view: str = '[' + str(default) + ']: ' if default else ''
     prompt: str = question + default_view
 
     answer: str = input(prompt) or default
@@ -111,7 +111,7 @@ def select(
 
     options: list = list(options.keys()) if isinstance(options, dict) else options
     options: list = sorted(options) if sort else options
-    default_view: str = '[' + default + ']: ' if default else ''
+    default_view: str = '[' + str(default) + ']: ' if default else ''
 
     print(question)
 
