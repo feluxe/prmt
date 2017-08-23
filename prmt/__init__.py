@@ -107,7 +107,7 @@ def select(
     """
     _print_margin(margin[0])
 
-    valid = lambda input_: input_ and input_.isdigit() and int(input_) in range(len(options))
+    valid = lambda input_: input_ and str(input_).isdigit() and int(input_) in range(len(options))
 
     options: list = list(options.keys()) if isinstance(options, dict) else options
     options: list = sorted(options) if sort else options
