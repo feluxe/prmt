@@ -122,7 +122,7 @@ def select(
     """
     Ask user a question and list options to choose from.
     @return_val: If False: func returns selected int (the key).
-                   If True: func returns the value as a string.
+                 If True: func returns the value as a string.
     """
     _print_margin(margin[0])
 
