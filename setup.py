@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
-from buildlib.utils.yaml import load_yaml
+from buildlib import yaml
 from codecs import open
 
 with open('README.md') as f:
     long_description = f.read()
 
-config = load_yaml('CONFIG.yaml')
+config = yaml.loadfile('Project')
 
 setup(
     name=config['public_name'],
@@ -20,15 +20,14 @@ setup(
     download_url=config['url'] + '/tarball/' + config['version'],
     license=config['license'],
     keywords=config['keywords'],
-
     include_package_data=True,
     platforms=config['pypi']['platforms'],
     classifiers=config['pypi']['classifiers'],
     install_requires=config['pypi']['install_requires'],
-    packages=find_packages(where='.', exclude=('tests', 'tests.*', 'venv-prmt', 'venv-prmt.*')),
+    packages=find_packages(
+        where='.', exclude=('tests', 'tests.*', 'venv-prmt', 'venv-prmt.*')),
     package_dir=config['pypi']['package_dir'],
     package_data=config['pypi']['package_data'],
     data_files=config['pypi']['data_files'],
     entry_points=config['pypi']['entry_points'],
-    tests_require=config['pypi']['tests_require']
-    )
+    tests_require=config['pypi']['tests_require'])
