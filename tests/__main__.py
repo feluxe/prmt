@@ -3,18 +3,17 @@ import prmt
 
 def test_string():
 
-    s = prmt.string(question='Enter first name: (simple)')
-    s = prmt.string(question='Enter last name: (simple)')
+    s = prmt.string(question='Enter string: (simple)')
+    s = prmt.string(question='Enter string: (simple)')
 
     s = prmt.string(
-        question='Enter first name (Default):',
+        question='Enter string (Default):',
         default='Joe',
     )
     s = prmt.string(
-        question='Enter last name: (Default)',
+        question='Enter string: (Default)',
         default='Joe',
     )
-    # s = prmt.string(question='Enter name', default='hello', margin=(3, 3))
 
     s = prmt.string(
         question='Enter string (Short)',
@@ -69,7 +68,7 @@ def test_select():
 
     k, v = prmt.select(
         question='Select item (Default):',
-        options=['a', 'Enter custom name', 'c'],
+        options=['a', 'Enter custom string', 'c'],
         default=1,
     )
     print(k, v)
@@ -81,7 +80,7 @@ def test_select():
 
     k, v = prmt.select(
         question='Select item (Default; Custom):',
-        options=['a', 'Enter custom name', 'c'],
+        options=['a', 'Enter custom string', 'c'],
         default=1,
         custom_key=1,
     )
@@ -167,13 +166,13 @@ def test_select():
 
 def test_list():
 
-    v = prmt.list_(question='Enter values: (Simple)')
+    v = prmt.list_of_str(question='Enter values: (Simple)')
     print(v)
     print()
 
     assert type(v) is list
 
-    v = prmt.list_(
+    v = prmt.list_of_str(
         question='Enter values: (Default as str)',
         default='lol, nice',
     )
@@ -182,7 +181,7 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_(
+    v = prmt.list_of_str(
         question='Enter values: (Default as list)',
         default=['lol, nice'],
     )
@@ -191,7 +190,7 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_(
+    v = prmt.list_of_str(
         question='Enter values: (Blacklist word)',
         default=['lol, nice'],
         blacklist=['lol']
@@ -201,18 +200,18 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_(question='Enter values: (Blacklist empty)', blacklist=[''])
+    v = prmt.list_of_str(question='Enter values: (Blacklist empty)', blacklist=[''])
     print(v)
     print()
 
     assert type(v) is list
 
-    v = prmt.list_(
+    v = prmt.list_of_str(
         question='Enter values: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
-    v = prmt.list_(
+    v = prmt.list_of_str(
         question='Enter values: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )

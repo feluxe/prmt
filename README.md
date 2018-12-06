@@ -6,15 +6,15 @@
 
 Prompt user for values on the command line.
 
-Features:
+**Features:**
 
 * Prompt bool from user. (`prmt.confirm`)
 * Prompt string from user. (`prmt.string`)
 * Prompt integer from user. (`prmt.integer`)
-* Prompt list of strings from user. (`prmt.list_`) 
-* Prompt user to select an item from a list of items (key:value). (`prmt.select`)
+* Prompt list of strings from user. (`prmt.list_of_str`) 
+* Prompt user to select an item from a list/dict of items. (`prmt.select`)
 
-Optional features:
+**Optional features:**
 
 * Set default values.
 * Customize formatting for each prompt. 

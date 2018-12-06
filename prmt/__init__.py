@@ -322,7 +322,7 @@ def select(
     return selected_key, selected_value
 
 
-def list_(
+def list_of_str(
     question: str,
     default: Optional[Union[list, str]] = None,
     fmt=['{}\n', '[{}] ', '> {}\n'],
@@ -365,7 +365,7 @@ def list_(
 
         print('Invalid input.' + fmt_end)
 
-        return_val = list_(
+        return_val = list_of_str(
             question=question,
             default=default,
             fmt=fmt,
