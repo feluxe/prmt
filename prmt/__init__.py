@@ -8,7 +8,10 @@ import os
 from subprocess import call
 
 
-def get_input_from_texteditor(question=None, default=None) -> str:
+def get_input_from_texteditor(
+    question=None,
+    default=None,
+) -> str:
 
     q_commented = ''
 
@@ -51,7 +54,7 @@ def get_input_from_texteditor(question=None, default=None) -> str:
 def string(
     question: str,
     default: Optional[str] = None,
-    fmt=['{}\n', '[{}] ', '> {}\n'],
+    fmt=['\n{}\n', '[{}] ', '> {}\n'],
     blacklist: Optional[list] = None,
     open_editor: bool = False,
 ) -> str:
@@ -111,7 +114,7 @@ def string(
 def integer(
     question: str,
     default: Optional[str] = None,
-    fmt=['{}\n', '[{}] ', '> {}\n'],
+    fmt=['\n{}\n', '[{}] ', '> {}\n'],
     blacklist: Optional[List[int]] = None,
 ) -> Union[int, None]:
     """
@@ -174,7 +177,7 @@ def integer(
 def confirm(
     question: str,
     default: Optional[str] = None,
-    fmt=['{}\n', '[{}] ', '> {}\n'],
+    fmt=['\n{}\n', '[{}] ', '> {}\n'],
 ) -> bool:
     """
     Ask user question to which she has to answer with y or n and return a bool.
@@ -226,7 +229,7 @@ def select(
     question: str,
     options: Union[dict, list, tuple],
     default: Optional[str] = None,
-    fmt=['{}', '  {}: {}', '', '[{}] ', '> {}\n'],
+    fmt=['\n{}\n', '  {}: {}', '\n', '[{}] ', '> {}\n'],
     custom_key: Optional[Union[str, int]] = None,
     custom_fmt=['\n{}\n', '{}', '> {}'],
 ) -> Tuple[Union[int, str], Any]:
@@ -325,7 +328,7 @@ def select(
 def list_of_str(
     question: str,
     default: Optional[Union[list, str]] = None,
-    fmt=['{}\n', '[{}] ', '> {}\n'],
+    fmt=['\n{}\n', '[{}] ', '> {}\n'],
     blacklist: Optional[list] = None,
 ) -> list:
     """
