@@ -65,6 +65,8 @@ def string(
     @open_editor: If 'True' opens editor for the user to enter the string.
 
     """
+    if not fmt:
+        fmt = ['{}\n', '[{}] ', '> {}\n']
 
     fmt_question = fmt[0]
     fmt_default = fmt[1]
@@ -120,6 +122,10 @@ def integer(
     @fmt: Set prompt formatting.
     @blacklist: Retry if user input is found in 'blacklist'.
     """
+
+    if not fmt:
+        fmt = ['{}\n', '[{}] ', '> {}\n']
+
     fmt_question = fmt[0]
     fmt_default = fmt[1]
     fmt_prompt = fmt[2].split('{}')[0]
@@ -178,6 +184,10 @@ def confirm(
     @fmt: Set prompt formatting.
     @blacklist: Retry if user input is found in 'blacklist'.
     """
+
+    if not fmt:
+        fmt = ['{}\n', '[{}] ', '> {}\n']
+
     fmt_question = fmt[0]
     fmt_default = fmt[1]
     fmt_prompt = fmt[2].split('{}')[0]
@@ -232,6 +242,9 @@ def select(
     @custom_fmt: Set formatting for the custom value prompt.
 
     """
+
+    if not fmt:
+        fmt = ['{}', '  {}: {}', '', '[{}] ', '> {}\n']
 
     fmt_question = fmt[0]
     fmt_option = fmt[1]
@@ -323,6 +336,9 @@ def list_(
     @fmt: Set prompt formatting.
     @blacklist: Retry if user input is found in 'blacklist'.
     """
+
+    if not fmt:
+        fmt = ['{}\n', '[{}] ', '> {}\n']
 
     fmt_end = fmt[2].split('{}')[1]
 

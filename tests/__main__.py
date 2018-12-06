@@ -3,45 +3,50 @@ import prmt
 
 def test_string():
 
-    s1 = prmt.string(question='Enter first name:')
-    s2 = prmt.string(question='Enter last name:')
+    s = prmt.string(question='Enter first name: (simple)')
+    s = prmt.string(question='Enter last name: (simple)')
 
-    s = prmt.string(question='Enter first name:', default='Joe')
-    s = prmt.string(question='Enter last name:', default='Joe')
+    s = prmt.string(
+        question='Enter first name (Default):',
+        default='Joe',
+    )
+    s = prmt.string(
+        question='Enter last name: (Default)',
+        default='Joe',
+    )
     # s = prmt.string(question='Enter name', default='hello', margin=(3, 3))
 
     s = prmt.string(
-        question='Enter first name',
+        question='Enter string (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
     s = prmt.string(
-        question='Enter last name',
+        question='Enter string (Short; Default)',
         default='James',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
     s = prmt.string(
-        question='Enter last name (force val)',
+        question='Enter string (Short; No empty)',
         fmt=['{} ', '[{}] ', '> {}'],
         blacklist=[''],
     )
 
     s = prmt.string(
-        question='Enter last name (in editor)',
+        question='Enter string (Short; Default; In editor)',
         default='hello',
         fmt=['{} ', '[{}] ', '> {}'],
         open_editor=True,
     )
 
     s = prmt.string(
-        question='Enter last name (in editor)',
-        default='hello',
+        question='Enter string (In editor)',
         open_editor=True,
     )
 
     s = prmt.string(
-        question='Enter last name (force val)',
+        question='Enter string (No empty)',
         blacklist=[''],
     )
 
@@ -49,12 +54,12 @@ def test_string():
 def test_confirm():
 
     b = prmt.confirm(question='Confirm [y|n]:')
-    b = prmt.confirm(question='Confirm [y|n]:', default='y')
+    b = prmt.confirm(question='Confirm [y|n] (Default):', default='y')
 
 
 def test_select():
 
-    k, v = prmt.select(question='Select:', options=['a', 'b', 'c'])
+    k, v = prmt.select(question='Select item ():', options=['a', 'b', 'c'])
     print(k, v)
     print(type(k), type(v))
     print()
@@ -63,7 +68,19 @@ def test_select():
     assert type(v) is str
 
     k, v = prmt.select(
-        question='Select:',
+        question='Select item (Default):',
+        options=['a', 'Enter custom name', 'c'],
+        default=1,
+    )
+    print(k, v)
+    print(type(k), type(v))
+    print()
+
+    assert type(k) is int
+    assert type(v) is str
+
+    k, v = prmt.select(
+        question='Select item (Default; Custom):',
         options=['a', 'Enter custom name', 'c'],
         default=1,
         custom_key=1,
@@ -75,7 +92,10 @@ def test_select():
     assert type(k) is int
     assert type(v) is str
 
-    k, v = prmt.select(question='Select:', options={0: 'a', 1: 'b', 2: 'c'})
+    k, v = prmt.select(
+        question='Select item (Key as int; Value as str):',
+        options={0: 'a', 1: 'b', 2: 'c'},
+    )
     print(k, v)
     print(type(k), type(v))
     print()
@@ -84,7 +104,8 @@ def test_select():
     assert type(v) is str
 
     k, v = prmt.select(
-        question='Select:', options={'0': 'a', '1': 'b', '2': 'c'}
+        question='Select item (Key as str; Value as str):',
+        options={'0': 'a', '1': 'b', '2': 'c'},
     )
     print(k, v)
     print(type(k), type(v))
@@ -94,7 +115,7 @@ def test_select():
     assert type(v) is str
 
     k, v = prmt.select(
-        question='Select:',
+        question='Select item (Key as str; Value as str; Default as int):',
         options={'0': 'a', '1': 'b', '2': 'c'},
         default=1,
     )
@@ -106,7 +127,7 @@ def test_select():
     assert type(v) is str
 
     k, v = prmt.select(
-        question='Select:',
+        question='Select item (Key as str; Value as str; Default as str):',
         options={'0': 'a', '1': 'b', '2': 'c'},
         default='1',
     )
@@ -118,7 +139,7 @@ def test_select():
     assert type(v) is str
 
     k, v = prmt.select(
-        question='Select:',
+        question='Select item (Key as word; Value as int; Default as word):',
         options={'foo': 0, 'bar': 1, 'baz': 2},
         default='bar',
     )
@@ -130,7 +151,8 @@ def test_select():
     assert type(v) is int
 
     k, v = prmt.select(
-        question='Select:',
+        question=
+        'Select item (Key as word; Value as int|str; Default as word; Custom):',
         options={'foo': 'Enter custom value', 'bar': 1, 'baz': 2},
         default='foo',
         custom_key='foo',
@@ -145,71 +167,84 @@ def test_select():
 
 def test_list():
 
-    v = prmt.list_(question='Enter values:')
-    print(v)
-    print()
-
-    assert type(v) is list
-
-    v = prmt.list_(question='Enter values:', default='lol, nice')
-    print(v)
-    print()
-
-    assert type(v) is list
-
-    v = prmt.list_(question='Enter values:', default=['lol, nice'])
+    v = prmt.list_(question='Enter values: (Simple)')
     print(v)
     print()
 
     assert type(v) is list
 
     v = prmt.list_(
-        question='Enter values:', default=['lol, nice'], blacklist=['lol']
+        question='Enter values: (Default as str)',
+        default='lol, nice',
     )
     print(v)
     print()
 
     assert type(v) is list
 
-    v = prmt.list_(question='Enter values:', blacklist=[''])
+    v = prmt.list_(
+        question='Enter values: (Default as list)',
+        default=['lol, nice'],
+    )
     print(v)
     print()
 
     assert type(v) is list
 
     v = prmt.list_(
-        question='Enter values:',
+        question='Enter values: (Blacklist word)',
+        default=['lol, nice'],
+        blacklist=['lol']
+    )
+    print(v)
+    print()
+
+    assert type(v) is list
+
+    v = prmt.list_(question='Enter values: (Blacklist empty)', blacklist=[''])
+    print(v)
+    print()
+
+    assert type(v) is list
+
+    v = prmt.list_(
+        question='Enter values: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
     v = prmt.list_(
-        question='Enter values:',
+        question='Enter values: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
 
 def test_integer():
 
-    v = prmt.integer(question='Enter int:')
+    v = prmt.integer(question='Enter int: (Simple)')
     print(v)
 
     assert type(v) in [int, type(None)]
 
     v = prmt.integer(
-        question='Enter int:',
+        question='Enter int: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
     v = prmt.integer(
-        question='Enter int:',
+        question='Enter int: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
-    v = prmt.integer(question='Enter int:', blacklist=[None])
+    v = prmt.integer(question='Enter int: (Blacklist None)', blacklist=[None])
     print(v)
     print()
 
     assert type(v) is int
+
+    v = prmt.integer(
+        question='Enter int: (Fmt None)',
+        fmt=None,
+    )
 
 
 test_string()
