@@ -22,6 +22,11 @@ Optional features:
 * Blacklist values. (If the user enters blacklisted values she will be prompted again)
 
 
+### Requirements
+
+Python `>=3.6`
+
+
 ### Install
 
     pip install prmt
