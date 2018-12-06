@@ -54,7 +54,7 @@ def get_input_from_texteditor(
 def string(
     question: str,
     default: Optional[str] = None,
-    fmt=['\n{}\n', '[{}] ', '> {}\n'],
+    fmt: List[str] = None,
     blacklist: Optional[list] = None,
     open_editor: bool = False,
 ) -> str:
@@ -69,7 +69,7 @@ def string(
 
     """
     if not fmt:
-        fmt = ['{}\n', '[{}] ', '> {}\n']
+        fmt = ['\n{}\n', '[{}] ', '> {}\n']
 
     fmt_question = fmt[0]
     fmt_default = fmt[1]
@@ -114,7 +114,7 @@ def string(
 def integer(
     question: str,
     default: Optional[str] = None,
-    fmt=['\n{}\n', '[{}] ', '> {}\n'],
+    fmt: List[str] = None,
     blacklist: Optional[List[int]] = None,
 ) -> Union[int, None]:
     """
@@ -127,7 +127,7 @@ def integer(
     """
 
     if not fmt:
-        fmt = ['{}\n', '[{}] ', '> {}\n']
+        fmt = ['\n{}\n', '[{}] ', '> {}\n']
 
     fmt_question = fmt[0]
     fmt_default = fmt[1]
@@ -177,7 +177,7 @@ def integer(
 def confirm(
     question: str,
     default: Optional[str] = None,
-    fmt=['\n{}\n', '[{}] ', '> {}\n'],
+    fmt: List[str] = None,
 ) -> bool:
     """
     Ask user question to which she has to answer with y or n and return a bool.
@@ -189,7 +189,7 @@ def confirm(
     """
 
     if not fmt:
-        fmt = ['{}\n', '[{}] ', '> {}\n']
+        fmt = ['\n{}\n', '[{}] ', '> {}\n']
 
     fmt_question = fmt[0]
     fmt_default = fmt[1]
@@ -229,7 +229,7 @@ def select(
     question: str,
     options: Union[dict, list, tuple],
     default: Optional[str] = None,
-    fmt=['\n{}\n', '  {}: {}', '\n', '[{}] ', '> {}\n'],
+    fmt: List[str] = None,
     custom_key: Optional[Union[str, int]] = None,
     custom_fmt=['\n{}\n', '{}', '> {}'],
 ) -> Tuple[Union[int, str], Any]:
@@ -247,7 +247,7 @@ def select(
     """
 
     if not fmt:
-        fmt = ['{}', '  {}: {}', '', '[{}] ', '> {}\n']
+        fmt = ['\n{}\n', '  {}: {}', '\n', '[{}] ', '> {}\n']
 
     fmt_question = fmt[0]
     fmt_option = fmt[1]
@@ -328,7 +328,7 @@ def select(
 def list_of_str(
     question: str,
     default: Optional[Union[list, str]] = None,
-    fmt=['\n{}\n', '[{}] ', '> {}\n'],
+    fmt: List[str] = None,
     blacklist: Optional[list] = None,
 ) -> list:
     """
@@ -341,7 +341,7 @@ def list_of_str(
     """
 
     if not fmt:
-        fmt = ['{}\n', '[{}] ', '> {}\n']
+        fmt = ['\n{}\n', '[{}] ', '> {}\n']
 
     fmt_end = fmt[2].split('{}')[1]
 
