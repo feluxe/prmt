@@ -8,7 +8,12 @@ name = "pypi"
 [dev-packages]
 yapf = "*"
 pylint = "*"
+mypy = "*"
 buildlib = "==0.2.18"
+docopt = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

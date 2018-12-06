@@ -4,20 +4,20 @@ from buildlib import buildmisc, git, wheel, project, yaml
 from docopt import docopt
 
 interface = """
-    Install:
-        pipenv install
-        pipenv run python make.py
+Install:
+    pipenv install --dev --pre
+    pipenv run python make.py
 
-    Usage:
-        make.py build [options]
-        make.py deploy [options]
-        make.py test [options]
-        make.py bump [options]
-        make.py git [options]
-        make.py -h | --help
+Usage:
+    make.py build [options]
+    make.py deploy [options]
+    make.py test [options]
+    make.py bump [options]
+    make.py git [options]
+    make.py -h | --help
 
-    Options:
-    -h, --help               Show this screen.
+Options:
+-h, --help               Show this screen.
 """
 
 proj = yaml.loadfile('Project')
@@ -37,7 +37,7 @@ def deploy(cfg: Cfg):
 
 
 def test(cfg: Cfg):
-    print('No tests available.')
+    sp.run(['python', '-m', 'tests'])
 
 
 def bump(cfg: Cfg):

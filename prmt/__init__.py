@@ -2,221 +2,358 @@
 This lib is all about asking the user for Command Line input.
 """
 
-from typing import Union, Any, Optional
+from typing import Union, Any, Optional, Tuple, List
 import tempfile
 import os
 from subprocess import call
 
 
-def _print_margin(int_):
-    for i in range(0, int_):
-        print()
+def get_input_from_texteditor(question=None, default=None) -> str:
 
+    q_commented = ''
 
-def editor_input(prompt):
-    editor = os.environ.get('EDITOR') if os.environ.get('EDITOR') else 'vi'
+    if question:
+        q_commented += "# NOTE:\n"
+        q_commented += "# This comment will be removed. Don't change it.\n"
+        q_commented += "#\n"
+        q_commented += "# QUESTION:\n"
 
-    print(prompt, end='')
+        for line in question.splitlines():
+            q_commented += '# ' + line + '\n'
+
+    if default:
+        q_commented += '#\n# DEFAULT:\n'
+        q_commented += '# ' + default
+        q_commented += '\n'
+
+    editor = os.environ.get('EDITOR') or 'vi'
 
     with tempfile.NamedTemporaryFile(suffix=".tmp", mode='w+') as tmp_file:
-        tmp_file.write('')
+        tmp_file.write(q_commented)
         tmp_file.flush()
         call([editor, tmp_file.name])
         tmp_file.seek(0)
-        edited_message = tmp_file.read()
+        user_input_raw = tmp_file.read()
 
-    print(edited_message)
+    user_input_clean = ''
 
-    return edited_message
+    if q_commented:
+        user_input_clean = user_input_raw.replace(q_commented, '')
+
+    else:
+        user_input_clean = user_input_raw
+
+    print(user_input_clean)
+
+    return user_input_clean
 
 
 def string(
     question: str,
-    default: str = None,
-    margin=(0, 1),
-    force_val: bool = False,
-    editor=False,
+    default: Optional[str] = None,
+    fmt=['{}\n', '[{}] ', '> {}\n'],
+    blacklist: Optional[list] = None,
+    open_editor: bool = False,
 ) -> str:
     """
     Ask user question and return input from user.
-    @default: Is displayed before the prompt and used if an empty string was passed.
-    @force_value: Repeat if input is empty.
-    @margin: Add a margin before and after the question.
+
+    @question: Question to ask.
+    @default: Add default value.
+    @fmt: Set prompt formatting.
+    @blacklist: Retry if user input is found in 'blacklist'.
+    @open_editor: If 'True' opens editor for the user to enter the string.
+
     """
-    _print_margin(margin[0])
 
-    default_view: str = '[{}]: '.format(str(default)) if default else ''
-    prompt: str = question + default_view
+    fmt_question = fmt[0]
+    fmt_default = fmt[1]
+    fmt_prompt = fmt[2].split('{}')[0]
+    fmt_end = fmt[2].split('{}')[1]
 
-    if editor:
-        answer = editor_input(prompt) or default
+    prompt = ''
+
+    if default:
+        prompt = fmt_question.format(question) +\
+                 fmt_default.format(default) +\
+                 fmt_prompt
+    else:
+        prompt = fmt_question.format(question) + fmt_prompt
+
+    if open_editor:
+
+        print(prompt, end='')
+        answer = get_input_from_texteditor(question, default) or default or ''
 
     else:
-        answer: str = input(prompt) or default
+        answer = input(prompt) or default or ''
 
-    if force_val and not answer:
-        print('\nInvalid input.')
+    if blacklist and answer in blacklist:
+
+        print('Invalid input.' + fmt_end)
 
         answer = string(
             question=question,
             default=default,
-            margin=margin,
-            force_val=force_val,
-            editor=editor
+            fmt=fmt,
+            blacklist=blacklist,
+            open_editor=open_editor,
         )
 
     else:
-        _print_margin(margin[1])
+        print(fmt_end, end='')
 
     return answer
 
 
-def confirm(
+def integer(
     question: str,
-    default: str = None,
-    margin=(0, 1),
-) -> bool:
+    default: Optional[str] = None,
+    fmt=['{}\n', '[{}] ', '> {}\n'],
+    blacklist: Optional[List[int]] = None,
+) -> Union[int, None]:
     """
-    Ask user question to which she has to answer with y or n and return a bool.
-    @default: Is displayed before the prompt. (optional)
+    Ask user question to which she has to enter an integer.
+
+    @question: Question to ask.
+    @default: Add default value.
+    @fmt: Set prompt formatting.
+    @blacklist: Retry if user input is found in 'blacklist'.
     """
-    _print_margin(margin[0])
+    fmt_question = fmt[0]
+    fmt_default = fmt[1]
+    fmt_prompt = fmt[2].split('{}')[0]
+    fmt_end = fmt[2].split('{}')[1]
 
-    default_view: str = '[{}]: '.format(str(default)) if default else ''
-    prompt: str = question + default_view
-
-    answer: str = input(prompt) or default
-
-    if answer and answer.lower() in ['y', 'yes', 'true', '1']:
-        return_val: bool = True
-
-    elif answer and answer.lower() in ['n', 'no', 'false', '0']:
-        return_val: bool = False
-
+    if default:
+        prompt = fmt_question.format(question) +\
+                 fmt_default.format(default) +\
+                 fmt_prompt
     else:
-        return_val: bool = confirm(
+        prompt = fmt_question.format(question) + fmt_prompt
+
+    answer: str = input(prompt) or default or ''
+
+    print(fmt_end, end='')
+
+    retry = False
+    return_val: Union[int, None]
+
+    if answer:
+        try:
+            return_val = int(answer)
+        except ValueError:
+            retry = True
+    else:
+        return_val = None
+
+    if not retry and blacklist:
+        if return_val in blacklist:
+            retry = True
+
+    if retry:
+
+        print("Invalid input." + fmt_end)
+
+        return_val = integer(
             question=question,
             default=default,
-            margin=margin
+            fmt=fmt,
+            blacklist=blacklist,
         )
-
-    _print_margin(margin[1])
 
     return return_val
 
 
-def _validate_selection(selection, len_options):
-    return selection \
-           and str(selection).isdigit() \
-           and int(selection) in range(len_options)
+def confirm(
+    question: str,
+    default: Optional[str] = None,
+    fmt=['{}\n', '[{}] ', '> {}\n'],
+) -> bool:
+    """
+    Ask user question to which she has to answer with y or n and return a bool.
+
+    @question: Question to ask.
+    @default: Add default value.
+    @fmt: Set prompt formatting.
+    @blacklist: Retry if user input is found in 'blacklist'.
+    """
+    fmt_question = fmt[0]
+    fmt_default = fmt[1]
+    fmt_prompt = fmt[2].split('{}')[0]
+    fmt_end = fmt[2].split('{}')[1]
+
+    if default:
+        prompt = fmt_question.format(question) +\
+                 fmt_default.format(default) +\
+                 fmt_prompt
+    else:
+        prompt = fmt_question.format(question) + fmt_prompt
+
+    return_val = None
+
+    answer: str = input(prompt) or default or ''
+
+    print(fmt_end, end='')
+
+    if answer and answer.lower() in ['y', 'yes', 'true', '1']:
+        return_val = True
+
+    elif answer and answer.lower() in ['n', 'no', 'false', '0']:
+        return_val = False
+
+    else:
+        return_val = confirm(
+            question=question,
+            default=default,
+            fmt=fmt,
+        )
+
+    return return_val
 
 
 def select(
     question: str,
-    options: Union[dict, list],
+    options: Union[dict, list, tuple],
     default: Optional[str] = None,
-    margin=(0, 1),
-    return_val: Optional[bool] = True,
-    sort: Optional[bool] = True,
-) -> Union[str, int]:
+    fmt=['{}', '  {}: {}', '', '[{}] ', '> {}\n'],
+    custom_key: Optional[Union[str, int]] = None,
+    custom_fmt=['\n{}\n', '{}', '> {}'],
+) -> Tuple[Union[int, str], Any]:
     """
-    Ask user a question and list options to choose from.
-    @return_val: If False: func returns selected int (the key).
-                 If True: func returns the value as a string.
+    Ask user a question and list options to choose from, return the seleced
+    key, value pair.
+
+    @question: Question to ask.
+    @options: The options which the user can choose from.
+    @default: Add default value.
+    @fmt: Set prompt formatting.
+    @custom_key: If the user selects this key, she can type in a custom value.
+    @custom_fmt: Set formatting for the custom value prompt.
+
     """
-    _print_margin(margin[0])
 
-    options: list = list(options.keys()) if isinstance(options, dict) else options
-    options: list = sorted(options) if sort else options
-    default_view: str = '[{}]: '.format(str(default)) if default else ''
+    fmt_question = fmt[0]
+    fmt_option = fmt[1]
+    fmt_post_option = fmt[2]
+    fmt_default = fmt[3]
+    fmt_prompt = fmt[4].split('{}')[0]
+    fmt_end = fmt[4].split('{}')[1]
 
-    print(question)
+    if default:
+        prompt = fmt_post_option +\
+                 fmt_default.format(default) +\
+                 fmt_prompt
+    else:
+        prompt = fmt_post_option + fmt_prompt
 
-    for i, o in enumerate(options):
-        print('  {}) {}'.format(i, o))
+    print(fmt_question.format(question))
 
-    selection: str = input(default_view) or default
+    # Print Options
 
-    if not _validate_selection(selection, len(options)):
-        selection: str = select(
+    if isinstance(options, (list, tuple)):
+
+        for key, option in enumerate(options):
+            print(fmt_option.format(key, str(option)))
+
+    elif isinstance(options, dict):
+
+        for key, option in options.items():
+            print('  {}: {}'.format(key, str(option)))
+
+    # Let User Choose Option
+
+    selected_key: Union[int, str] = input(prompt) or str(default)
+
+    # Validate Input
+    retry = True
+
+    if isinstance(options, (list, tuple)):
+
+        try:
+            selected_key = int(selected_key)
+            selected_value = options[int(selected_key)]
+            retry = False
+        except (ValueError, IndexError):
+            pass
+
+    elif isinstance(options, dict):
+
+        try:
+            selected_value = options[selected_key]
+            retry = False
+        except KeyError:
+            try:
+                selected_key = int(selected_key)
+                selected_value = options[selected_key]
+                retry = False
+            except ValueError:
+                pass
+            except KeyError:
+                pass
+
+    if not retry and custom_key and str(selected_key) == str(custom_key):
+        selected_value = string(selected_value, fmt=custom_fmt)
+
+    # If Input Invalid, recurse.
+    print(fmt_end, end='')
+
+    if retry:
+        selected_key, selected_value = select(
             question=question,
             options=options,
             default=default,
-            margin=margin,
-            return_val=False,
-            sort=sort
+            fmt=fmt,
         )
 
-    else:
-        _print_margin(margin[1])
-
-    return int(selection) \
-        if not return_val \
-        else options[int(selection)]
-
-
-def path(
-    question: str,
-    options: Union[list, dict] = None,
-    default: Optional[str] = None,
-    margin=(0, 1),
-) -> str:
-    """
-    Ask user to choose a path from a list or enter a new one.
-    If no option is provided, she will be ask to enter a new path immediately.
-    """
-    option: str = 'Enter PATH manually.'
-    options_: Optional[list] = [option] + options if options else None
-
-    if options:
-        selection: Optional[int] = select(
-            question=question,
-            options=options_,
-            default=default,
-            return_val=False,
-            margin=margin,
-            sort=False
-        )
-
-    else:
-        selection: Optional[int] = None
-
-    if not selection and not isinstance(selection, int):
-        print(question)
-
-    if selection in (0, None):
-        result: str = string(
-            question='Please enter a PATH:\n',
-            margin=margin,
-            force_val=True
-        )
-
-    else:
-        result: str = options[selection]
-
-    return result
+    return selected_key, selected_value
 
 
 def list_(
     question: str,
     default: Optional[Union[list, str]] = None,
-    margin=(0, 1),
-    force_val: bool = False,
+    fmt=['{}\n', '[{}] ', '> {}\n'],
+    blacklist: Optional[list] = None,
 ) -> list:
     """
-    Ask user for a list of strings. Each one must be separated with a comma.
-    """
-    default_: str = ', '.join(list(default)) if default else None
+    Ask user for a list of strings. Values must be seperated with commas.
 
-    answer: Optional[str] = string(
+    @question: Question to ask.
+    @default: Add default value.
+    @fmt: Set prompt formatting.
+    @blacklist: Retry if user input is found in 'blacklist'.
+    """
+
+    fmt_end = fmt[2].split('{}')[1]
+
+    if isinstance(default, (list, tuple)):
+        default = ', '.join(default)
+
+    answer = string(
         question=question,
-        default=default_,
-        margin=margin,
-        force_val=force_val
+        default=default,
+        fmt=fmt,
+        blacklist=None,
     )
 
-    if answer:
-        return [item.strip() for item in answer.split(',')]
+    retry = False
 
-    else:
-        return []
+    return_val = [item.strip() for item in answer.split(',')]
+
+    if blacklist:
+        for item in return_val:
+            if item in blacklist:
+                retry = True
+
+    if retry:
+
+        print('Invalid input.' + fmt_end)
+
+        return_val = list_(
+            question=question,
+            default=default,
+            fmt=fmt,
+            blacklist=blacklist,
+        )
+
+    return return_val

@@ -1,3 +1,0 @@
-
-recursive-exclude tests *
-include prmt/cli/interface.txt
