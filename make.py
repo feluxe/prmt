@@ -1,24 +1,24 @@
+"""Install:
+  pipenv install --dev --pre
+
+Usage:
+  make.py [<command>] [options]
+
+Commands:
+  build    Build wheel.
+  push     Push wheel to pypi.
+  test     Run tests.
+  bump     Run interacitve bump sequence.
+  git      Run interactive git sequence.
+
+Options:
+  -h, --help         Show this screen.
+"""
 import subprocess as sp
+import prmt
 from cmdi import print_summary
 from buildlib import buildmisc, git, wheel, project, yaml
 from docopt import docopt
-
-interface = """
-Install:
-    pipenv install --dev --pre
-    pipenv run python make.py
-
-Usage:
-    make.py build [options]
-    make.py deploy [options]
-    make.py test [options]
-    make.py bump [options]
-    make.py git [options]
-    make.py -h | --help
-
-Options:
--h, --help               Show this screen.
-"""
 
 proj = yaml.loadfile('Project')
 
@@ -29,11 +29,12 @@ class Cfg:
 
 
 def build(cfg: Cfg):
-    return wheel.cmd.build(clean_dir=True)
+    return wheel.cmd.build(cleanup=True)
 
 
-def deploy(cfg: Cfg):
-    return wheel.cmd.push(clean_dir=True, repository=cfg.registry)
+def push(cfg: Cfg):
+    w = wheel.find_wheel('./dist', semver_num=cfg.version)
+    return wheel.cmd.push(f'./dist/{w}')
 
 
 def test(cfg: Cfg):
@@ -44,13 +45,16 @@ def bump(cfg: Cfg):
 
     results = []
 
-    if project.prompt.should_bump_version():
+    if prmt.confirm("BUMP VERSION number?", 'y'):
         result = project.cmd.bump_version()
         cfg.version = result.val
         results.append(result)
 
-    if wheel.prompt.should_push('PYPI'):
-        results.append(deploy(cfg))
+    if prmt.confirm("BUILD wheel?", 'y'):
+        results.append(build(cfg))
+
+    if prmt.confirm("PUSH wheel to PYPI?", 'y'):
+        results.append(push(cfg))
 
     new_release = cfg.version != proj['version']
 
@@ -62,23 +66,27 @@ def bump(cfg: Cfg):
 def run():
 
     cfg = Cfg()
-    uinput = docopt(interface)
+    args = docopt(__doc__)
     results = []
 
-    if uinput['build']:
+    if args['<command>'] == 'build':
         results.append(build(cfg))
 
-    if uinput['deploy']:
-        results.append(deploy(cfg))
+    elif args['<command>'] == 'push':
+        results.append(push(cfg))
 
-    if uinput['test']:
+    elif args['<command>'] == 'test':
         test(cfg)
 
-    if uinput['git']:
+    elif args['<command>'] == 'git':
         results.append(git.seq.bump_git(cfg.version, new_release=False))
 
-    if uinput['bump']:
+    elif args['<command>'] == 'bump':
         results.extend(bump(cfg))
+
+    else:
+        print(__doc__)
+        return
 
     print_summary(results)
 

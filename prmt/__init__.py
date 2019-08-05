@@ -5,44 +5,48 @@ This lib is all about asking the user for Command Line input.
 from typing import Union, Any, Optional, Tuple, List
 import tempfile
 import os
-from subprocess import call
+import subprocess as sp
 
 
 def get_input_from_texteditor(
-    question=None,
+    instruction=None,
     default=None,
+    file_type=None,
+    remove_comments=True,
 ) -> str:
 
-    q_commented = ''
-
-    if question:
-        q_commented += "# NOTE:\n"
-        q_commented += "# This comment will be removed. Don't change it.\n"
-        q_commented += "#\n"
-        q_commented += "# QUESTION:\n"
-
-        for line in question.splitlines():
-            q_commented += '# ' + line + '\n'
-
     if default:
-        q_commented += '#\n# DEFAULT:\n'
-        q_commented += '# ' + default
-        q_commented += '\n'
+        q = f"{default}\n"
+    else:
+        q = "\n"
+
+    if instruction is None and remove_comments == True:
+        q += "# Lines starting with '#' will be ignored.\n"
+    elif isinstance(instruction, str):
+        for line in instruction.splitlines():
+            q += f"# {line}\n"
 
     editor = os.environ.get('EDITOR') or 'vi'
 
-    with tempfile.NamedTemporaryFile(suffix=".tmp", mode='w+') as tmp_file:
-        tmp_file.write(q_commented)
+    with tempfile.NamedTemporaryFile(
+        suffix=file_type or "", mode='w+'
+    ) as tmp_file:
+        tmp_file.write(q)
         tmp_file.flush()
-        call([editor, tmp_file.name])
+
+        if editor in ['vi', 'vim'] and file_type:
+            sp.run([editor, '-c', f'set filetype={file_type}', tmp_file.name])
+        else:
+            sp.run([editor, tmp_file.name])
+
         tmp_file.seek(0)
+
         user_input_raw = tmp_file.read()
 
     user_input_clean = ''
 
-    if q_commented:
-        user_input_clean = user_input_raw.replace(q_commented, '')
-
+    if q:
+        user_input_clean = user_input_raw.replace(q, '')
     else:
         user_input_clean = user_input_raw
 
@@ -51,22 +55,24 @@ def get_input_from_texteditor(
     return user_input_clean
 
 
-def string(
+def _string_base(
     question: str,
     default: Optional[str] = None,
     fmt: List[str] = None,
     blacklist: Optional[list] = None,
     open_editor: bool = False,
+    editor_instruction: Optional[str] = None,
+    editor_file_type=None,
+    editor_remove_comments=True,
 ) -> str:
     """
     Ask user question and return input from user.
 
-    @question: Question to ask.
-    @default: Add default value.
-    @fmt: Set prompt formatting.
-    @blacklist: Retry if user input is found in 'blacklist'.
-    @open_editor: If 'True' opens editor for the user to enter the string.
-
+    :param question: Question to ask.
+    :param default: Add default value.
+    :param fmt: Set prompt formatting.
+    :param blacklist: Retry if user input is found in 'blacklist'.
+    :param open_editor: If 'True' opens editor for the user to enter the string.
     """
     if not fmt:
         fmt = ['\n{}\n', '[{}] ', '> {}\n']
@@ -86,10 +92,13 @@ def string(
         prompt = fmt_question.format(question) + fmt_prompt
 
     if open_editor:
-
         print(prompt, end='')
-        answer = get_input_from_texteditor(question, default) or default or ''
-
+        answer = get_input_from_texteditor(
+            instruction=editor_instruction,
+            default=default,
+            file_type=editor_file_type,
+            remove_comments=editor_remove_comments,
+        ) or default or ''
     else:
         answer = input(prompt) or default or ''
 
@@ -97,18 +106,52 @@ def string(
 
         print('Invalid input.' + fmt_end)
 
-        answer = string(
+        answer = _string_base(
             question=question,
             default=default,
             fmt=fmt,
             blacklist=blacklist,
             open_editor=open_editor,
+            editor_instruction=editor_instruction,
         )
-
     else:
         print(fmt_end, end='')
 
     return answer
+
+
+def string_from_editor(
+    question: str,
+    default: Optional[str] = None,
+    fmt: List[str] = None,
+    blacklist: Optional[list] = None,
+    instruction: Optional[str] = None,
+    file_type=None,
+) -> str:
+    return _string_base(
+        question=question,
+        default=default,
+        fmt=fmt,
+        blacklist=blacklist,
+        open_editor=True,
+        editor_instruction=instruction,
+        editor_file_type=file_type,
+    )
+
+
+def string(
+    question: str,
+    default: Optional[str] = None,
+    fmt: List[str] = None,
+    blacklist: Optional[list] = None,
+) -> str:
+    return _string_base(
+        question=question,
+        default=default,
+        fmt=fmt,
+        blacklist=blacklist,
+        open_editor=False
+    )
 
 
 def integer(

@@ -1,4 +1,5 @@
 import prmt
+import readline
 
 
 def test_string():
@@ -32,17 +33,20 @@ def test_string():
         blacklist=[''],
     )
 
-    s = prmt.string(
+    s = prmt.string_from_editor(
         question='Enter string (Short; Default; In editor)',
         default='hello',
         fmt=['{} ', '[{}] ', '> {}'],
-        open_editor=True,
     )
 
-    s = prmt.string(
-        question='Enter string (In editor)',
-        open_editor=True,
+    s = prmt.string_from_editor(
+        question='Enter string (Short; Default; In editor)',
+        default='hello',
+        fmt=['{} ', '[{}] ', '> {}'],
+        instruction="1\n2\n3\n4\n5\n6\n7\n8\n"
     )
+
+    s = prmt.string_from_editor(question='Enter string (In editor)', )
 
     s = prmt.string(
         question='Enter string (No empty)',
@@ -200,7 +204,9 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_of_str(question='Enter values: (Blacklist empty)', blacklist=[''])
+    v = prmt.list_of_str(
+        question='Enter values: (Blacklist empty)', blacklist=['']
+    )
     print(v)
     print()
 

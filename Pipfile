@@ -9,11 +9,11 @@ name = "pypi"
 yapf = "*"
 pylint = "*"
 mypy = "*"
-buildlib = "==0.2.18"
 docopt = "*"
+buildlib = "==2.3.2"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
 
 [pipenv]
 allow_prereleases = true
