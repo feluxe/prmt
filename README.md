@@ -10,6 +10,7 @@ Prompt user for values on the command line.
 
 * Prompt bool from user. (`prmt.confirm`)
 * Prompt string from user. (`prmt.string`)
+* Prompt string from user, opening an editor window. (`prmt.string_from_editor`)
 * Prompt integer from user. (`prmt.integer`)
 * Prompt list of strings from user. (`prmt.list_of_str`) 
 * Prompt user to select an item from a list/dict of items. (`prmt.select`)
