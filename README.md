@@ -19,6 +19,7 @@ Prompt user for values on the command line.
 
 * Set default values.
 * Customize formatting for each prompt. 
+* Customize formatting for all prompts via the `prmt.Prompt()` class.
 * Open default Text Editor for the user to enter text.
 * Blacklist values. (If the user enters blacklisted values she will be prompted again)
 

@@ -1,11 +1,11 @@
 """
-This lib is all about asking the user for Command Line input.
+A bunch of functions to prompt a user for values on the command line.
 """
-
 from typing import Union, Any, Optional, Tuple, List
 import tempfile
 import os
 import subprocess as sp
+from dataclasses import dataclass
 
 
 def get_input_from_texteditor(
@@ -58,38 +58,31 @@ def get_input_from_texteditor(
 def _string_base(
     question: str,
     default: Optional[str] = None,
-    fmt: List[str] = None,
     blacklist: Optional[list] = None,
     open_editor: bool = False,
     editor_instruction: Optional[str] = None,
     editor_file_type=None,
     editor_remove_comments=True,
+    fmt=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_default=None,
+    fmt_prompt=None,
 ) -> str:
-    """
-    Ask user question and return input from user.
 
-    :param question: Question to ask.
-    :param default: Add default value.
-    :param fmt: Set prompt formatting.
-    :param blacklist: Retry if user input is found in 'blacklist'.
-    :param open_editor: If 'True' opens editor for the user to enter the string.
-    """
-    if not fmt:
-        fmt = ['\n{}\n', '[{}] ', '> {}\n']
-
-    fmt_question = fmt[0]
-    fmt_default = fmt[1]
-    fmt_prompt = fmt[2].split('{}')[0]
-    fmt_end = fmt[2].split('{}')[1]
+    fmt_question = fmt_question or fmt[0]
+    fmt_default = fmt_default or fmt[1]
+    fmt_prompt = fmt_prompt or fmt[2]
+    fmt_prompt_start = fmt_prompt.split('{}')[0]
+    fmt_prompt_end = fmt_prompt.split('{}')[1]
 
     prompt = ''
 
     if default:
         prompt = fmt_question.format(question) +\
                  fmt_default.format(default) +\
-                 fmt_prompt
+                 fmt_prompt_start
     else:
-        prompt = fmt_question.format(question) + fmt_prompt
+        prompt = fmt_question.format(question) + fmt_prompt_start
 
     if open_editor:
         print(prompt, end='')
@@ -104,18 +97,20 @@ def _string_base(
 
     if blacklist and answer in blacklist:
 
-        print('Invalid input.' + fmt_end)
+        print('Invalid input.' + fmt_prompt_end)
 
         answer = _string_base(
             question=question,
             default=default,
-            fmt=fmt,
             blacklist=blacklist,
             open_editor=open_editor,
             editor_instruction=editor_instruction,
+            fmt_question=fmt_question,
+            fmt_default=fmt_default,
+            fmt_prompt=fmt_prompt,
         )
     else:
-        print(fmt_end, end='')
+        print(fmt_prompt_end, end='')
 
     return answer
 
@@ -123,70 +118,109 @@ def _string_base(
 def string_from_editor(
     question: str,
     default: Optional[str] = None,
-    fmt: List[str] = None,
     blacklist: Optional[list] = None,
     instruction: Optional[str] = None,
     file_type=None,
+    remove_comments=True,
+    fmt=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_default=None,
+    fmt_prompt=None,
 ) -> str:
+    """
+    Prompt the user for a string in a new editor window.
+
+    :param question: Question to ask.
+    :param default: Add default value.
+    :param blacklist: Retry if user input is found in 'blacklist'.
+    :param instruction: A commented text that appears in the editor window to give the user instructions
+    :param file_type: Specify a file type for the editor window. This can be useful for syntax highligting etc.
+    :param remove_comments: Lines starting with a `#` will be removed from the user's input text.
+    :param fmt_question: Define a template for displaying the question.
+    :param fmt_default: Define a template for displaying the default value.
+    :param fmt_prompt: Define a template for displaying the prompt line.
+    """
     return _string_base(
         question=question,
         default=default,
-        fmt=fmt,
         blacklist=blacklist,
         open_editor=True,
         editor_instruction=instruction,
         editor_file_type=file_type,
+        editor_remove_comments=remove_comments,
+        fmt=fmt,
+        fmt_question=fmt_question,
+        fmt_default=fmt_default,
+        fmt_prompt=fmt_prompt,
     )
 
 
 def string(
     question: str,
     default: Optional[str] = None,
-    fmt: List[str] = None,
     blacklist: Optional[list] = None,
+    fmt=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_default=None,
+    fmt_prompt=None,
 ) -> str:
+    """
+    Prompt the user for a string.
+
+    :param question: Question to ask.
+    :param default: Define a default value.
+    :param blacklist: Retry if user input is found in 'blacklist'.
+    :param fmt_question: Define a template for displaying the question.
+    :param fmt_default: Define a template for displaying the default value.
+    :param fmt_prompt: Define a template for displaying the prompt line.
+    """
     return _string_base(
         question=question,
         default=default,
-        fmt=fmt,
         blacklist=blacklist,
-        open_editor=False
+        open_editor=False,
+        fmt=fmt,
+        fmt_question=fmt_question,
+        fmt_default=fmt_default,
+        fmt_prompt=fmt_prompt,
     )
 
 
 def integer(
     question: str,
     default: Optional[str] = None,
-    fmt: List[str] = None,
     blacklist: Optional[List[int]] = None,
+    fmt=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_default=None,
+    fmt_prompt=None,
 ) -> Union[int, None]:
     """
-    Ask user question to which she has to enter an integer.
+    Prompt the user for an integer.
 
-    @question: Question to ask.
-    @default: Add default value.
-    @fmt: Set prompt formatting.
-    @blacklist: Retry if user input is found in 'blacklist'.
+    :param question: Question to ask.
+    :param default: Add default value.
+    :param blacklist: Retry if user input is found in 'blacklist'.
+    :param fmt_question: Define a template for displaying the question.
+    :param fmt_default: Define a template for displaying the default value.
+    :param fmt_prompt: Define a template for displaying the prompt line.
     """
-
-    if not fmt:
-        fmt = ['\n{}\n', '[{}] ', '> {}\n']
-
-    fmt_question = fmt[0]
-    fmt_default = fmt[1]
-    fmt_prompt = fmt[2].split('{}')[0]
-    fmt_end = fmt[2].split('{}')[1]
+    fmt_question = fmt_question or fmt[0]
+    fmt_default = fmt_default or fmt[1]
+    fmt_prompt = fmt_prompt or fmt[2]
+    fmt_prompt_start = fmt_prompt.split('{}')[0]
+    fmt_prompt_end = fmt_prompt.split('{}')[1]
 
     if default:
         prompt = fmt_question.format(question) +\
                  fmt_default.format(default) +\
-                 fmt_prompt
+                 fmt_prompt_start
     else:
-        prompt = fmt_question.format(question) + fmt_prompt
+        prompt = fmt_question.format(question) + fmt_prompt_start
 
     answer: str = input(prompt) or default or ''
 
-    print(fmt_end, end='')
+    print(fmt_prompt_end, end='')
 
     retry = False
     return_val: Union[int, None]
@@ -205,13 +239,16 @@ def integer(
 
     if retry:
 
-        print("Invalid input." + fmt_end)
+        print("Invalid input." + fmt_prompt_end)
 
         return_val = integer(
             question=question,
             default=default,
-            fmt=fmt,
             blacklist=blacklist,
+            fmt=fmt,
+            fmt_question=fmt_question,
+            fmt_default=fmt_default,
+            fmt_prompt=fmt_prompt,
         )
 
     return return_val
@@ -220,37 +257,38 @@ def integer(
 def confirm(
     question: str,
     default: Optional[str] = None,
-    fmt: List[str] = None,
+    fmt=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_default=None,
+    fmt_prompt=None,
 ) -> bool:
     """
-    Ask user question to which she has to answer with y or n and return a bool.
+    Prompt the user to confirm with [y|yes] or [n|no].
 
-    @question: Question to ask.
-    @default: Add default value.
-    @fmt: Set prompt formatting.
-    @blacklist: Retry if user input is found in 'blacklist'.
+    :param question: Question to ask.
+    :param default: Add default value.
+    :param fmt_question: Define a template for displaying the question.
+    :param fmt_default: Define a template for displaying the default value.
+    :param fmt_prompt: Define a template for displaying the prompt line.
     """
-
-    if not fmt:
-        fmt = ['\n{}\n', '[{}] ', '> {}\n']
-
-    fmt_question = fmt[0]
-    fmt_default = fmt[1]
-    fmt_prompt = fmt[2].split('{}')[0]
-    fmt_end = fmt[2].split('{}')[1]
+    fmt_question = fmt_question or fmt[0]
+    fmt_default = fmt_default or fmt[1]
+    fmt_prompt = fmt_prompt or fmt[2]
+    fmt_prompt_start = fmt_prompt.split('{}')[0]
+    fmt_prompt_end = fmt_prompt.split('{}')[1]
 
     if default:
         prompt = fmt_question.format(question) +\
                  fmt_default.format(default) +\
-                 fmt_prompt
+                 fmt_prompt_start
     else:
-        prompt = fmt_question.format(question) + fmt_prompt
+        prompt = fmt_question.format(question) + fmt_prompt_start
 
     return_val = None
 
     answer: str = input(prompt) or default or ''
 
-    print(fmt_end, end='')
+    print(fmt_prompt_end, end='')
 
     if answer and answer.lower() in ['y', 'yes', 'true', '1']:
         return_val = True
@@ -263,6 +301,72 @@ def confirm(
             question=question,
             default=default,
             fmt=fmt,
+            fmt_question=fmt_question,
+            fmt_default=fmt_default,
+            fmt_prompt=fmt_prompt,
+        )
+
+    return return_val
+
+
+def list_of_string(
+    question: str,
+    default: Optional[Union[list, str]] = None,
+    blacklist: Optional[list] = None,
+    fmt=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_default=None,
+    fmt_prompt=None,
+) -> list:
+    """
+    Prompt the user for a list of strings. Values are seperated with commas.
+
+    :param question: Question to ask.
+    :param default: Add default value.
+    :param blacklist: Retry if user input is found in 'blacklist'.
+    :param fmt_question: Define a template for displaying the question.
+    :param fmt_default: Define a template for displaying the default value.
+    :param fmt_prompt: Define a template for displaying the prompt line.
+    """
+    fmt_question = fmt_question or fmt[0]
+    fmt_default = fmt_default or fmt[1]
+    fmt_prompt = fmt_prompt or fmt[2]
+    fmt_prompt_end = fmt_prompt.split('{}')[1]
+
+    if isinstance(default, (list, tuple)):
+        default = ', '.join(default)
+
+    answer = string(
+        question=question,
+        default=default,
+        blacklist=None,
+        fmt=fmt,
+        fmt_question=fmt_question,
+        fmt_default=fmt_default,
+        fmt_prompt=fmt_prompt,
+    )
+
+    retry = False
+
+    return_val = [item.strip() for item in answer.split(',')]
+
+    if blacklist:
+        for item in return_val:
+            if item in blacklist:
+                retry = True
+
+    if retry:
+
+        print('Invalid input.' + fmt_prompt_end)
+
+        return_val = list_of_string(
+            question=question,
+            default=default,
+            blacklist=blacklist,
+            fmt=fmt,
+            fmt_question=fmt_question,
+            fmt_default=fmt_default,
+            fmt_prompt=fmt_prompt,
         )
 
     return return_val
@@ -272,39 +376,48 @@ def select(
     question: str,
     options: Union[dict, list, tuple],
     default: Optional[str] = None,
-    fmt: List[str] = None,
     custom_key: Optional[Union[str, int]] = None,
-    custom_fmt=['\n{}\n', '{}', '> {}'],
+    fmt=["\n{}\n", "  {}: {}", "\n", "[{}]", "> {}\n"],
+    fmt_question=None,
+    fmt_option=None,
+    fmt_options_end=None,
+    fmt_default=None,
+    fmt_prompt=None,
+    fmt_custom=["\n{}\n", "[{}]", "> {}\n"],
+    fmt_custom_question=None,
+    fmt_custom_default=None,
+    fmt_custom_propmt=None,
 ) -> Tuple[Union[int, str], Any]:
     """
-    Ask user a question and list options to choose from, return the seleced
-    key, value pair.
+    Prompt the user to select an option from a list of options.
 
-    @question: Question to ask.
-    @options: The options which the user can choose from.
-    @default: Add default value.
-    @fmt: Set prompt formatting.
-    @custom_key: If the user selects this key, she can type in a custom value.
-    @custom_fmt: Set formatting for the custom value prompt.
-
+    :param question: Question to ask.
+    :param options: The options which the user can choose from.
+    :param default: Add default value.
+    :param custom_key: If the user selects this key, s/he can type in a custom value.
+    :param fmt_question: Define a template for displaying the question.
+    :param fmt_option: Define a template for displaying the each option.
+    :param fmt_options_end: Use this to display something behind the option list.
+    :param fmt_default: Define a template for displaying the default value.
+    :param fmt_prompt: Define a template for displaying the prompt line.
+    :param fmt_custom_question: Define a template for displaying the question of the custom string input.
+    :param fmt_custom_default: Define a template for displaying the default value of the custom string input.
+    :param fmt_custom_prompt: Define a template for displaying the prompt line of the custom string input.
     """
-
-    if not fmt:
-        fmt = ['\n{}\n', '  {}: {}', '\n', '[{}] ', '> {}\n']
-
-    fmt_question = fmt[0]
-    fmt_option = fmt[1]
-    fmt_post_option = fmt[2]
-    fmt_default = fmt[3]
-    fmt_prompt = fmt[4].split('{}')[0]
-    fmt_end = fmt[4].split('{}')[1]
+    fmt_question = fmt_question or fmt[0]
+    fmt_option = fmt_option or fmt[1]
+    fmt_options_end = fmt_options_end or fmt[2]
+    fmt_default = fmt_default or fmt[3]
+    fmt_prompt = fmt_prompt or fmt[4]
+    fmt_prompt_start = fmt_prompt.split('{}')[0]
+    fmt_prompt_end = fmt_prompt.split('{}')[1]
 
     if default:
-        prompt = fmt_post_option +\
+        prompt = fmt_options_end +\
                  fmt_default.format(default) +\
-                 fmt_prompt
+                 fmt_prompt_start
     else:
-        prompt = fmt_post_option + fmt_prompt
+        prompt = fmt_options_end + fmt_prompt_start
 
     print(fmt_question.format(question))
 
@@ -352,70 +465,304 @@ def select(
                 pass
 
     if not retry and custom_key and str(selected_key) == str(custom_key):
-        selected_value = string(selected_value, fmt=custom_fmt)
+        selected_value = string(
+            selected_value,
+            fmt_question=fmt_custom_question,
+            fmt_default=fmt_custom_default,
+            fmt_prompt=fmt_custom_propmt,
+        )
 
     # If Input Invalid, recurse.
-    print(fmt_end, end='')
+    print(fmt_prompt_end, end='')
 
     if retry:
         selected_key, selected_value = select(
             question=question,
             options=options,
             default=default,
-            fmt=fmt,
+            custom_key=custom_key,
+            fmt_question=fmt_question,
+            fmt_option=fmt_option,
+            fmt_options_end=fmt_options_end,
+            fmt_default=fmt_default,
+            fmt_prompt=fmt_prompt,
+            fmt_custom_question=fmt_custom_question,
+            fmt_custom_default=fmt_custom_default,
+            fmt_custom_propmt=fmt_custom_propmt,
         )
 
     return selected_key, selected_value
 
 
-def list_of_str(
-    question: str,
-    default: Optional[Union[list, str]] = None,
-    fmt: List[str] = None,
-    blacklist: Optional[list] = None,
-) -> list:
-    """
-    Ask user for a list of strings. Values must be seperated with commas.
+class Prompt:
 
-    @question: Question to ask.
-    @default: Add default value.
-    @fmt: Set prompt formatting.
-    @blacklist: Retry if user input is found in 'blacklist'.
-    """
+    def __init__(
+        self,
+        fmt_question=None,
+        fmt_default=None,
+        fmt_prompt=None,
+        #
+        fmt_string_from_editor_question=None,
+        fmt_string_from_editor_default=None,
+        fmt_string_from_editor_prompt=None,
+        #
+        fmt_string_question=None,
+        fmt_string_default=None,
+        fmt_string_prompt=None,
+        #
+        fmt_integer_question=None,
+        fmt_integer_default=None,
+        fmt_integer_prompt=None,
+        #
+        fmt_confirm_question=None,
+        fmt_confirm_default=None,
+        fmt_confirm_prompt=None,
+        #
+        fmt_list_of_string_question=None,
+        fmt_list_of_string_default=None,
+        fmt_list_of_string_prompt=None,
+        #
+        fmt_select_question=None,
+        fmt_select_option=None,
+        fmt_select_options_end=None,
+        fmt_select_default=None,
+        fmt_select_prompt=None,
+        fmt_select_custom_question=None,
+        fmt_select_custom_default=None,
+        fmt_select_custom_prompt=None,
+    ):
+        self.fmt_question = fmt_question
+        self.fmt_default = fmt_default
+        self.fmt_prompt = fmt_prompt
 
-    if not fmt:
-        fmt = ['\n{}\n', '[{}] ', '> {}\n']
+        self.fmt_string_from_editor_question = fmt_string_question
+        self.fmt_string_from_editor_default = fmt_string_default
+        self.fmt_string_from_editor_prompt = fmt_string_prompt
 
-    fmt_end = fmt[2].split('{}')[1]
+        self.fmt_string_question = fmt_string_question
+        self.fmt_string_default = fmt_string_default
+        self.fmt_string_prompt = fmt_string_prompt
 
-    if isinstance(default, (list, tuple)):
-        default = ', '.join(default)
+        self.fmt_integer_question = fmt_integer_question
+        self.fmt_integer_default = fmt_integer_default
+        self.fmt_integer_prompt = fmt_integer_prompt
 
-    answer = string(
-        question=question,
-        default=default,
-        fmt=fmt,
-        blacklist=None,
-    )
+        self.fmt_confirm_question = fmt_confirm_question
+        self.fmt_confirm_default = fmt_confirm_default
+        self.fmt_confirm_prompt = fmt_confirm_prompt
 
-    retry = False
+        self.fmt_list_of_string_question = fmt_list_of_string_question
+        self.fmt_list_of_string_default = fmt_list_of_string_default
+        self.fmt_list_of_string_prompt = fmt_list_of_string_prompt
 
-    return_val = [item.strip() for item in answer.split(',')]
+        self.fmt_select_question = fmt_select_question,
+        self.fmt_select_option = fmt_select_option,
+        self.fmt_select_options_end = fmt_select_options_end,
+        self.fmt_select_default = fmt_select_default,
+        self.fmt_select_prompt = fmt_select_prompt,
+        self.fmt_select_custom_question = fmt_select_custom_question,
+        self.fmt_select_custom_default = fmt_select_custom_default
+        self.fmt_select_custom_prompt = fmt_select_custom_prompt,
 
-    if blacklist:
-        for item in return_val:
-            if item in blacklist:
-                retry = True
+    def string_from_editor(
+        self,
+        question: str,
+        default: Optional[str] = None,
+        blacklist: Optional[list] = None,
+        instruction: Optional[str] = None,
+        file_type=None,
+        remove_comments=True,
+        fmt=[None, None, None],
+        fmt_question=None,
+        fmt_default=None,
+        fmt_prompt=None,
+    ) -> str:
+        """
+        Prompt the user for a string in a new editor window.
 
-    if retry:
+        :param question: Question to ask.
+        :param default: Add default value.
+        :param blacklist: Retry if user input is found in 'blacklist'.
+        :param instruction: A commented text that appears in the editor window to give the user instructions
+        :param file_type: Specify a file type for the editor window. This can be useful for syntax highligting etc.
+        :param remove_comments: Lines starting with a `#` will be removed from the user's input text.
+        :param fmt_question: Define a template for displaying the question.
+        :param fmt_default: Define a template for displaying the default value.
+        :param fmt_prompt: Define a template for displaying the prompt line.
+        """
+        fmt_question = fmt_question or fmt[0] or self.fmt_string_from_editor_question or self.fmt_question # yapf: disable
+        fmt_default = fmt_default or fmt[1] or self.fmt_string_from_editor_default or self.fmt_default # yapf: disable
+        fmt_prompt = fmt_prompt or fmt[2] or self.fmt_string_from_editor_prompt or self.fmt_prompt # yapf: disable
 
-        print('Invalid input.' + fmt_end)
+        args = locals()
+        del args['self']
+        del args['fmt']
 
-        return_val = list_of_str(
-            question=question,
-            default=default,
-            fmt=fmt,
-            blacklist=blacklist,
-        )
+        return string_from_editor(**args)
 
-    return return_val
+    def string(
+        self,
+        question: str,
+        default: Optional[str] = None,
+        blacklist: Optional[list] = None,
+        fmt=[None, None, None],
+        fmt_question=None,
+        fmt_default=None,
+        fmt_prompt=None,
+    ) -> str:
+        """
+        Prompt the user for a string.
+
+        :param question: Question to ask.
+        :param default: Define a default value.
+        :param blacklist: Retry if user input is found in 'blacklist'.
+        :param fmt_question: Define a template for displaying the question.
+        :param fmt_default: Define a template for displaying the default value.
+        :param fmt_prompt: Define a template for displaying the prompt line.
+        """
+        fmt_question = fmt_question or fmt[0] or self.fmt_string_question or self.fmt_question  # yapf: disable
+        fmt_default = fmt_default or fmt[1] or self.fmt_string_default or self.fmt_default # yapf: disable
+        fmt_prompt = fmt_prompt or fmt[2] or self.fmt_string_prompt or self.fmt_prompt # yapf: disable
+
+        args = locals()
+        del args['self']
+        del args['fmt']
+
+        return string(**args)
+
+    def integer(
+        self,
+        question: str,
+        default: Optional[str] = None,
+        blacklist: Optional[List[int]] = None,
+        fmt=[None, None, None],
+        fmt_question=None,
+        fmt_default=None,
+        fmt_prompt=None,
+    ) -> Union[int, None]:
+        """
+        Prompt the user for an integer.
+
+        :param question: Question to ask.
+        :param default: Add default value.
+        :param blacklist: Retry if user input is found in 'blacklist'.
+        :param fmt_question: Define a template for displaying the question.
+        :param fmt_default: Define a template for displaying the default value.
+        :param fmt_prompt: Define a template for displaying the prompt line.
+        """
+        fmt_question = fmt_question or fmt[0] or self.fmt_integer_question or self.fmt_question # yapf: disable
+        fmt_default = fmt_default or fmt[1] or self.fmt_integer_default or self.fmt_default # yapf: disable
+        fmt_prompt = fmt_prompt or fmt[2] or self.fmt_integer_prompt or self.fmt_prompt # yapf: disable
+
+        args = locals()
+        del args['self']
+        del args['fmt']
+
+        return integer(**args)
+
+    def confirm(
+        self,
+        question: str,
+        default: Optional[str] = None,
+        fmt=[None, None, None],
+        fmt_question=None,
+        fmt_default=None,
+        fmt_prompt=None,
+    ) -> bool:
+        """
+        Prompt the user to confirm with [y|yes] or [n|no].
+
+        :param question: Question to ask.
+        :param default: Add default value.
+        :param fmt_question: Define a template for displaying the question.
+        :param fmt_default: Define a template for displaying the default value.
+        :param fmt_prompt: Define a template for displaying the prompt line.
+        """
+        fmt_question = fmt_question or fmt[0] or self.fmt_confirm_question or self.fmt_question  # yapf: disable
+        fmt_default = fmt_default or fmt[1] or self.fmt_confirm_default or self.fmt_default  # yapf: disable
+        fmt_prompt = fmt_prompt or fmt[2] or self.fmt_confirm_prompt or self.fmt_prompt  # yapf: disable
+
+        args = locals()
+        del args['self']
+        del args['fmt']
+
+        return confirm(**args)
+
+    def list_of_string(
+        self,
+        question: str,
+        default: Optional[Union[list, str]] = None,
+        blacklist: Optional[list] = None,
+        fmt=[None, None, None],
+        fmt_question=None,
+        fmt_default=None,
+        fmt_prompt=None,
+    ) -> list:
+        """
+        Prompt the user for a list of strings. Values are seperated with commas.
+
+        :param question: Question to ask.
+        :param default: Add default value.
+        :param blacklist: Retry if user input is found in 'blacklist'.
+        :param fmt_question: Define a template for displaying the question.
+        :param fmt_default: Define a template for displaying the default value.
+        :param fmt_prompt: Define a template for displaying the prompt line.
+        """
+        fmt_question = fmt_question or fmt[0] or self.fmt_list_of_string_question or self.fmt_question  # yapf: disable
+        fmt_default = fmt_default or fmt[1] or self.fmt_list_of_string_default or self.fmt_default  # yapf: disable
+        fmt_prompt = fmt_prompt or fmt[2] or self.fmt_list_of_string_prompt or self.fmt_prompt  # yapf: disable
+
+        args = locals()
+        del args['self']
+        del args['fmt']
+
+        return list_of_string(**args)
+
+    def select(
+        self,
+        question: str,
+        options: Union[dict, list, tuple],
+        default: Optional[str] = None,
+        custom_key: Optional[Union[str, int]] = None,
+        fmt=[None, None, None, None, None],
+        fmt_question=None,
+        fmt_option=None,
+        fmt_options_end=None,
+        fmt_default=None,
+        fmt_prompt=None,
+        fmt_custom=[None, None, None],
+        fmt_custom_question=None,
+        fmt_custom_default=None,
+        fmt_custom_prompt=None,
+    ) -> Tuple[Union[int, str], Any]:
+        """
+        Prompt the user to select an option from a list of options.
+
+        :param question: Question to ask.
+        :param options: The options which the user can choose from.
+        :param default: Add default value.
+        :param custom_key: If the user selects this key, s/he can type in a custom value.
+        :param fmt_question: Define a template for displaying the question.
+        :param fmt_option: Define a template for displaying the each option.
+        :param fmt_options_end: Use this to display something behind the option list.
+        :param fmt_default: Define a template for displaying the default value.
+        :param fmt_prompt: Define a template for displaying the prompt line.
+        :param fmt_custom_question: Define a template for displaying the question of the custom string input.
+        :param fmt_custom_default: Define a template for displaying the default value of the custom string input.
+        :param fmt_custom_prompt: Define a template for displaying the prompt line of the custom string input.
+        """
+        fmt_question = fmt_question or fmt[0] or self.fmt_select_question or self.fmt_question  # yapf: disable
+        fmt_option = fmt_option or fmt[1] or self.fmt_select_option  # yapf: disable
+        fmt_options_end = fmt_options_end or fmt[2] or self.fmt_select_options_end  # yapf: disable
+        fmt_default = fmt_default or fmt[3] or self.fmt_select_default or self.fmt_default  # yapf: disable
+        fmt_prompt = fmt_prompt or fmt[4] or self.fmt_select_prompt or self.fmt_prompt  # yapf: disable
+
+        fmt_custom_question = fmt_custom_question or fmt_custom[0] or self.fmt_select_custom_question or self.fmt_question  # yapf: disable
+        fmt_custom_default = fmt_custom_default or fmt_custom[1] or self.fmt_select_custom_default or self.fmt_default  # yapf: disable
+        fmt_custom_prompt = fmt_custom_prompt or fmt_custom[2] or self.fmt_select_custom_prompt or self.fmt_prompt  # yapf: disable
+
+        args = locals()
+        del args['self']
+        del args['fmt']
+
+        return select(**args)

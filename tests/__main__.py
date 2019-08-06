@@ -18,35 +18,38 @@ def test_string():
 
     s = prmt.string(
         question='Enter string (Short)',
-        fmt=['{} ', '[{}] ', '> {}'],
+        fmt_question='{} ',
+        fmt_prompt='> {}',
     )
 
     s = prmt.string(
         question='Enter string (Short; Default)',
         default='James',
-        fmt=['{} ', '[{}] ', '> {}'],
+        fmt_question='{} ',
+        fmt_default='[{}] ',
+        fmt_prompt='> {}'
     )
 
     s = prmt.string(
         question='Enter string (Short; No empty)',
-        fmt=['{} ', '[{}] ', '> {}'],
+        fmt_question='{} ',
+        fmt_default='[{}] ',
+        fmt_prompt='> {}',
         blacklist=[''],
     )
 
+    s = prmt.string_from_editor(question='Enter string (In editor)')
+
     s = prmt.string_from_editor(
-        question='Enter string (Short; Default; In editor)',
-        default='hello',
-        fmt=['{} ', '[{}] ', '> {}'],
+        question='Enter string (In editor; Default)',
+        default='default value',
     )
 
     s = prmt.string_from_editor(
-        question='Enter string (Short; Default; In editor)',
-        default='hello',
-        fmt=['{} ', '[{}] ', '> {}'],
-        instruction="1\n2\n3\n4\n5\n6\n7\n8\n"
+        question='Enter string (In editor; Default; Custom Instruction)',
+        default='default value',
+        instruction="Custom Instruction.",
     )
-
-    s = prmt.string_from_editor(question='Enter string (In editor)', )
 
     s = prmt.string(
         question='Enter string (No empty)',
@@ -170,13 +173,13 @@ def test_select():
 
 def test_list():
 
-    v = prmt.list_of_str(question='Enter values: (Simple)')
+    v = prmt.list_of_string(question='Enter values: (Simple)')
     print(v)
     print()
 
     assert type(v) is list
 
-    v = prmt.list_of_str(
+    v = prmt.list_of_string(
         question='Enter values: (Default as str)',
         default='lol, nice',
     )
@@ -185,7 +188,7 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_of_str(
+    v = prmt.list_of_string(
         question='Enter values: (Default as list)',
         default=['lol, nice'],
     )
@@ -194,7 +197,7 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_of_str(
+    v = prmt.list_of_string(
         question='Enter values: (Blacklist word)',
         default=['lol, nice'],
         blacklist=['lol']
@@ -204,7 +207,7 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_of_str(
+    v = prmt.list_of_string(
         question='Enter values: (Blacklist empty)', blacklist=['']
     )
     print(v)
@@ -212,12 +215,12 @@ def test_list():
 
     assert type(v) is list
 
-    v = prmt.list_of_str(
+    v = prmt.list_of_string(
         question='Enter values: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
 
-    v = prmt.list_of_str(
+    v = prmt.list_of_string(
         question='Enter values: (Short)',
         fmt=['{} ', '[{}] ', '> {}'],
     )
@@ -246,10 +249,16 @@ def test_integer():
 
     assert type(v) is int
 
-    v = prmt.integer(
-        question='Enter int: (Fmt None)',
-        fmt=None,
-    )
+
+def test_prompt_class():
+
+    from prmt import Prompt
+
+    prompt = Prompt(fmt_question="[A]{}[B]", fmt_string_default='[C]{}[D]]')
+
+    s = prompt.string(question='Enter string: (simple)', default='foo')
+    s = prompt.string_from_editor(question='Enter string (In editor)')
+    b = prompt.confirm(question='Confirm [y|n]:')
 
 
 test_string()
@@ -257,3 +266,4 @@ test_confirm()
 test_select()
 test_list()
 test_integer()
+test_prompt_class()
