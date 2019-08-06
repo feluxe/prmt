@@ -10,7 +10,7 @@ yapf = "*"
 pylint = "*"
 mypy = "*"
 docopt = "*"
-buildlib = "==2.3.2"
+buildlib = "==2.3.3"
 
 [requires]
 python_version = "3.7"
