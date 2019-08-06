@@ -69,9 +69,10 @@ def _string_base(
     fmt_prompt=None,
 ) -> str:
 
-    fmt_question = fmt_question or fmt[0]
-    fmt_default = fmt_default or fmt[1]
-    fmt_prompt = fmt_prompt or fmt[2]
+    fmt = fmt or [None, None, None]
+    fmt_question = fmt_question or fmt[0] or "\n{}\n"
+    fmt_default = fmt_default or fmt[1] or "[{}]"
+    fmt_prompt = fmt_prompt or fmt[2] or "> {}\n"
     fmt_prompt_start = fmt_prompt.split('{}')[0]
     fmt_prompt_end = fmt_prompt.split('{}')[1]
 
@@ -205,9 +206,10 @@ def integer(
     :param fmt_default: Define a template for displaying the default value.
     :param fmt_prompt: Define a template for displaying the prompt line.
     """
-    fmt_question = fmt_question or fmt[0]
-    fmt_default = fmt_default or fmt[1]
-    fmt_prompt = fmt_prompt or fmt[2]
+    fmt = fmt or [None, None, None]
+    fmt_question = fmt_question or fmt[0] or "\n{}\n"
+    fmt_default = fmt_default or fmt[1] or "[{}]"
+    fmt_prompt = fmt_prompt or fmt[2] or "> {}\n"
     fmt_prompt_start = fmt_prompt.split('{}')[0]
     fmt_prompt_end = fmt_prompt.split('{}')[1]
 
@@ -271,9 +273,10 @@ def confirm(
     :param fmt_default: Define a template for displaying the default value.
     :param fmt_prompt: Define a template for displaying the prompt line.
     """
-    fmt_question = fmt_question or fmt[0]
-    fmt_default = fmt_default or fmt[1]
-    fmt_prompt = fmt_prompt or fmt[2]
+    fmt = fmt or [None, None, None]
+    fmt_question = fmt_question or fmt[0] or "\n{}\n"
+    fmt_default = fmt_default or fmt[1] or "[{}]"
+    fmt_prompt = fmt_prompt or fmt[2] or "> {}\n"
     fmt_prompt_start = fmt_prompt.split('{}')[0]
     fmt_prompt_end = fmt_prompt.split('{}')[1]
 
@@ -328,9 +331,10 @@ def list_of_string(
     :param fmt_default: Define a template for displaying the default value.
     :param fmt_prompt: Define a template for displaying the prompt line.
     """
-    fmt_question = fmt_question or fmt[0]
-    fmt_default = fmt_default or fmt[1]
-    fmt_prompt = fmt_prompt or fmt[2]
+    fmt = fmt or [None, None, None]
+    fmt_question = fmt_question or fmt[0] or "\n{}\n"
+    fmt_default = fmt_default or fmt[1] or "[{}]"
+    fmt_prompt = fmt_prompt or fmt[2] or "> {}\n"
     fmt_prompt_end = fmt_prompt.split('{}')[1]
 
     if isinstance(default, (list, tuple)):
@@ -404,13 +408,19 @@ def select(
     :param fmt_custom_default: Define a template for displaying the default value of the custom string input.
     :param fmt_custom_prompt: Define a template for displaying the prompt line of the custom string input.
     """
-    fmt_question = fmt_question or fmt[0]
-    fmt_option = fmt_option or fmt[1]
-    fmt_options_end = fmt_options_end or fmt[2]
-    fmt_default = fmt_default or fmt[3]
-    fmt_prompt = fmt_prompt or fmt[4]
+    fmt = fmt or [None, None, None, None, None]
+    fmt_question = fmt_question or fmt[0] or "\n{}\n"
+    fmt_option = fmt_option or fmt[1] or "  {}: {}"
+    fmt_options_end = fmt_options_end or fmt[2] or "\n"
+    fmt_default = fmt_default or fmt[3] or "[{}]"
+    fmt_prompt = fmt_prompt or fmt[4] or "> {}\n"
     fmt_prompt_start = fmt_prompt.split('{}')[0]
     fmt_prompt_end = fmt_prompt.split('{}')[1]
+
+    fmt_custom = fmt_custom or [None, None, None]
+    fmt_custom_question = fmt_custom_question or fmt_custom[0] or "\n{}\n"
+    fmt_custom_default = fmt_custom_default or fmt_custom[1] or "[{}]"
+    fmt_custom_propmt = fmt_custom_propmt or fmt_custom[2] or "> {}\n"
 
     if default:
         prompt = fmt_options_end +\
