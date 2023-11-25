@@ -231,6 +231,7 @@ def string(
     :param question: Question to ask.
     :param default: Define a default value.
     :param blacklist: Retry if user input is found in 'blacklist'.
+    :param multiline: Allow multiline answers. Use ctrl+d or ctrl+c to send.
     :param fmt_question: Define a template for displaying the question.
     :param fmt_default: Define a template for displaying the default value.
     :param fmt_prompt: Define a template for displaying the prompt line.
