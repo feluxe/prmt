@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "prmt"
+version = "4.0.1"
+description = "Command line prompts for all the values"
+authors = ["feluxe <felix@meyerwolters.de>"]
+maintainers = ["feluxe <felix@meyerwolters.de>"]
+repository = "https://github.com/feluxe/prmt"
+license = "Apache License 2.0"
+readme = "README.md"
+keywords = ["command", "line", "prompt", "user", "input"]
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

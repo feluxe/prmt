@@ -4,7 +4,7 @@
 
 ### Description
 
-Prompt user for values on the command line.
+Command line prompts for all the values.
 
 **Features:**
 
@@ -26,7 +26,7 @@ Prompt user for values on the command line.
 
 ### Requirements
 
-Python `>=3.6`
+Python `>=3.7`
 
 
 ### Install
@@ -35,7 +35,7 @@ Python `>=3.6`
 
 or
 
-    pipenv install prmt
+    poetry install prmt
 
 
 ### Examples
