@@ -1,10 +1,11 @@
-
 # prmt
 
 
 ### Description
 
-Command line prompts for all the values.
+Simple and robust command line prompts for most of the values.
+The formatting of the questions and prompts is completely customizable.
+This lib has no dependencies and no magic.
 
 **Features:**
 

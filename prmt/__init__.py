@@ -289,7 +289,7 @@ def integer(
     print(fmt_prompt_end, end="")
 
     retry = False
-    return_val: Union[int, None]
+    return_val: Union[int, None] = None
 
     if answer:
         try:
@@ -443,7 +443,7 @@ def list_of_string(
 def select(
     question: str,
     options: Union[dict, list, tuple],
-    default: Optional[str] = None,
+    default: Optional[Union[str, int]] = None,
     custom_key: Optional[Union[str, int]] = None,
     fmt=["\n{}\n", "  {}: {}", "\n", "[{}]", "> {}\n"],
     fmt_question=None,
@@ -509,6 +509,7 @@ def select(
 
     # Validate Input
     retry = True
+    selected_value = ""
 
     if isinstance(options, (list, tuple)):
         try:
@@ -602,9 +603,9 @@ class Prompt:
         self.fmt_default = fmt_default
         self.fmt_prompt = fmt_prompt
 
-        self.fmt_string_from_editor_question = fmt_string_question
-        self.fmt_string_from_editor_default = fmt_string_default
-        self.fmt_string_from_editor_prompt = fmt_string_prompt
+        self.fmt_string_from_editor_question = fmt_string_from_editor_question
+        self.fmt_string_from_editor_default = fmt_string_from_editor_default
+        self.fmt_string_from_editor_prompt = fmt_string_from_editor_prompt
 
         self.fmt_string_question = fmt_string_question
         self.fmt_string_default = fmt_string_default

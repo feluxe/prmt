@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "prmt"
-version = "4.0.1"
-description = "Command line prompts for all the values"
+version = "4.1.0"
+description = "Simple and robust command line prompts for most values"
 authors = ["feluxe <felix@meyerwolters.de>"]
 maintainers = ["feluxe <felix@meyerwolters.de>"]
 repository = "https://github.com/feluxe/prmt"
